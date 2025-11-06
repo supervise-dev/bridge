@@ -10,10 +10,7 @@ export const mkdirInput = z.object({
   path: z.string().describe("Absolute or relative directory path to create"),
   options: z
     .object({
-      recursive: z
-        .boolean()
-        .optional()
-        .describe("If true, creates parent directories as needed (default: false)"),
+      recursive: z.boolean().optional().describe("If true, creates parent directories as needed (default: false)"),
       mode: z
         .number()
         .optional()
@@ -34,7 +31,7 @@ export const readdirInput = z.object({
           .boolean()
           .optional()
           .describe(
-            "If true, returns objects with file type info (isFile, isDirectory). If false, returns just filenames"
+            "If true, returns objects with file type info (isFile, isDirectory). If false, returns just filenames",
           ),
       }),
       z.string().describe("Character encoding string (e.g., 'utf8')"),
@@ -49,14 +46,8 @@ export const readFileInput = z.object({
   options: z
     .union([
       z.object({
-        encoding: z
-          .string()
-          .optional()
-          .describe("Character encoding (e.g., 'utf8'). If omitted, returns Buffer"),
-        flag: z
-          .string()
-          .optional()
-          .describe('File open flag (e.g., "r" for read-only). Default is "r"'),
+        encoding: z.string().optional().describe("Character encoding (e.g., 'utf8'). If omitted, returns Buffer"),
+        flag: z.string().optional().describe('File open flag (e.g., "r" for read-only). Default is "r"'),
       }),
       z.string().describe("Character encoding string (e.g., 'utf8')"),
     ])
@@ -69,10 +60,7 @@ export const statInput = z.object({
   path: z.string().describe("Absolute or relative path to stat"),
   options: z
     .object({
-      bigint: z
-        .boolean()
-        .optional()
-        .describe("If true, returns numeric values as BigInt instead of Number"),
+      bigint: z.boolean().optional().describe("If true, returns numeric values as BigInt instead of Number"),
       throwIfNoEntry: z
         .boolean()
         .optional()
@@ -97,18 +85,12 @@ export const writeFileInput = z.object({
   options: z
     .union([
       z.object({
-        encoding: z
-          .string()
-          .optional()
-          .describe("Character encoding for text (e.g., "utf8"). Default: "utf8"'),
+        encoding: z.string().optional().describe('Character encoding for text (e.g., "utf8"). Default: "utf8"'),
         mode: z
           .number()
           .optional()
           .describe("Unix file mode permissions (e.g., 0o644). If not specified, uses system default"),
-        flag: z
-          .string()
-          .optional()
-          .describe('File open flag (e.g., "w" for write). Default: "w"'),
+        flag: z.string().optional().describe('File open flag (e.g., "w" for write). Default: "w"'),
       }),
       z.string().describe("Character encoding string (e.g., 'utf8')"),
     ])
@@ -119,9 +101,7 @@ export const writeFileInput = z.object({
 // Output Schemas
 
 /** Returns true if file/directory exists, false otherwise */
-export const existsOutput = z
-  .boolean()
-  .describe("true if the path exists, false if it does not");
+export const existsOutput = z.boolean().describe("true if the path exists, false if it does not");
 
 /** Returns the path to the newly created directory, or undefined if recursive was false and parent dirs already exist */
 export const mkdirOutput = z
@@ -146,11 +126,7 @@ export const readdirOutput = z
 /** File contents with type information */
 export const readFileOutput = z.object({
   type: z.enum(["Buffer", "string"]).describe("Type of data: 'Buffer' for binary, 'string' for text"),
-  data: z
-    .string()
-    .describe(
-      "File contents: base64-encoded if type is Buffer, UTF-8 text if type is string"
-    ),
+  data: z.string().describe("File contents: base64-encoded if type is Buffer, UTF-8 text if type is string"),
 });
 
 /** File system metadata - mirrors Node.js fs.Stats */
@@ -200,10 +176,7 @@ export const deleteInput = z.object({
         .boolean()
         .optional()
         .describe("If true, recursively delete directory and contents. If false, only empty dirs"),
-      force: z
-        .boolean()
-        .optional()
-        .describe("If true, ignore errors if file does not exist"),
+      force: z.boolean().optional().describe("If true, ignore errors if file does not exist"),
     })
     .optional()
     .describe("Optional deletion settings"),
