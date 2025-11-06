@@ -24,7 +24,14 @@
   "main": "./dist/client.js",
   "types": "./dist/client.d.ts",
   "files": [
-    "dist",
+    "dist/client.js",
+    "dist/client.d.ts",
+    "dist/client.js.map",
+    "dist/fs",
+    "dist/process",
+    "dist/router.d.ts",
+    "dist/schema.d.ts",
+    "dist/index.d.ts",
     "src",
     "tsconfig.json"
   ],

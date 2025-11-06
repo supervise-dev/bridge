@@ -19,6 +19,43 @@ A tRPC-based filesystem bridge that implements the `CodebuffFileSystem` interfac
 
 ## Installation
 
+### Quick Install (Recommended)
+
+Download and execute the install script:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/supervise-dev/bridge/master/install.sh | bash
+```
+
+**Specify a custom install directory:**
+
+```bash
+INSTALL_DIR=/usr/local/bin curl -fsSL https://raw.githubusercontent.com/supervise-dev/bridge/master/install.sh | bash
+```
+
+**Install a specific version:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/supervise-dev/bridge/master/install.sh | bash -s v1.0.0
+```
+
+**Common install directories:**
+- `/usr/local/bin` - System-wide binary (requires sudo for some systems)
+- `$HOME/.local/bin` - User-specific binary (add to PATH if needed)
+- `.` - Current directory (default)
+
+**Security tip:** Review the script before executing:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/supervise-dev/bridge/master/install.sh -o install.sh
+cat install.sh  # Review the script
+bash install.sh
+```
+
+### Development Installation
+
+For local development:
+
 ```bash
 bun install
 ```
