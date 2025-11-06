@@ -6,9 +6,9 @@ on:
       - master
       - develop
     paths:
-      - 'bridge-binaries.yml'
-      - '../../src'
-      - '../../package.json'
+      - '.github/workflows/bridge-binaries.yml'
+      - 'src'
+      - 'package.json'
   workflow_dispatch:
 
 jobs:
