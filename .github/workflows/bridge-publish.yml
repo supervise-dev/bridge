@@ -33,7 +33,7 @@ jobs:
         run: bun install
 
       - name: Build bridge package (client library only)
-        run: bun run build:client
+        run: bun run build
 
       - name: Publish to GitHub Packages (Development)
         if: github.ref == 'refs/heads/develop'
