@@ -36,10 +36,10 @@ mkdir -p "$INSTALL_DIR"
 # Determine GitHub URL
 if [ "$VERSION" = "latest" ]; then
   echo "⬇️  Downloading latest bridge binary for $PLATFORM-$ARCH..."
-  URL="https://github.com/anthropics-supervised/supervise.dev/releases/latest/download/${BINARY_NAME}"
+  URL="https://github.com/supervise-dev/bridge/releases/latest/download/${BINARY_NAME}"
 else
   echo "⬇️  Downloading bridge v${VERSION} for $PLATFORM-$ARCH..."
-  URL="https://github.com/anthropics-supervised/supervise.dev/releases/download/bridge-v${VERSION}/${BINARY_NAME}"
+  URL="https://github.com/supervise-dev/bridge/releases/download/bridge-v${VERSION}/${BINARY_NAME}"
 fi
 
 BINARY_PATH="$INSTALL_DIR/bridge"
