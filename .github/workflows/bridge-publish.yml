@@ -36,8 +36,8 @@ jobs:
 
       - name: Publish to GitHub Packages (Development)
         if: github.ref == 'refs/heads/develop'
-        run: bun -F @supervise-dev/bridge publish --tag develop --no-git-checks
+        run: bun publish --tag develop --no-git-checks
 
       - name: Publish to GitHub Packages (Production)
         if: github.ref == 'refs/heads/master'
-        run: bun -F @supervise-dev/bridge publish --no-git-checks
+        run: bun publish --no-git-checks
