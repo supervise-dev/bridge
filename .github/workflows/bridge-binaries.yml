@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bridge-${{ matrix.target }}
-          path: packages/bridge/dist/${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
           retention-days: 1
 
   release:
@@ -80,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=$(node -e "console.log(require('./packages/bridge/package.json').version)")
+          VERSION=$(node -e "console.log(require('./package.json').version)")
           TAG="bridge-v${VERSION}"
 
           # Check if release exists
