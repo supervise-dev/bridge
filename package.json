@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@supervise-dev/bridge",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A tRPC-based bridge for filesystem and process operations with both library and server components",
   "scripts": {
     "bridge": "bun run dist/bridge",
