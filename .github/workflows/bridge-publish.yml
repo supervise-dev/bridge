@@ -1,0 +1,54 @@
+name: Publish Supervise Bridge Package
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - '../workflows/publish-bridge.yml'
+      - '../..'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build bridge package (client library only)
+        run: pnpm -F @supervise-dev/bridge run build:client
+
+      - name: Configure npm registry
+        run: |
+          echo "@supervise-dev:registry=https://npm.pkg.github.com/" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+
+      - name: Publish to GitHub Packages (Development)
+        if: github.ref == 'refs/heads/develop'
+        run: pnpm -F @supervise-dev/bridge publish --tag develop --no-git-checks
+
+      - name: Publish to GitHub Packages (Production)
+        if: github.ref == 'refs/heads/master'
+        run: pnpm -F @supervise-dev/bridge publish --no-git-checks

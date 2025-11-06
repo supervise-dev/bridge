@@ -1,0 +1,8 @@
+# Folder
+.idea/
+node_modules/
+dist/
+
+# File
+.env
+.*.bun-build
