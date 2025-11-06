@@ -44,12 +44,14 @@ fi
 
 BINARY_PATH="$INSTALL_DIR/bridge"
 
-if curl -fsSL -o "$BINARY_PATH" "$URL"; then
+if curl -fSL --progress-bar -o "$BINARY_PATH" "$URL"; then
   chmod +x "$BINARY_PATH"
+  echo ""
   echo "✓ Successfully installed bridge to $BINARY_PATH"
   echo ""
   echo "Usage: $BINARY_PATH"
 else
+  echo ""
   echo "❌ Failed to download bridge binary"
   exit 1
 fi
