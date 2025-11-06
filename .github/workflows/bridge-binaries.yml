@@ -39,22 +39,11 @@ jobs:
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Build bridge binary
-        run: pnpm -F @supervise-dev/bridge run build:bridge:${{ matrix.target }}
+        run: bun -F @supervise-dev/bridge run build:bridge:${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

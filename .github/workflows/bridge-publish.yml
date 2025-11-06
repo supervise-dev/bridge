@@ -20,25 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: latest
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
       - name: Setup bun
         uses: oven-sh/setup-bun@v1
 
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Build bridge package (client library only)
-        run: pnpm -F @supervise-dev/bridge run build:client
+        run: bun -F @supervise-dev/bridge run build:client
 
       - name: Configure npm registry
         run: |
@@ -47,8 +36,8 @@ jobs:
 
       - name: Publish to GitHub Packages (Development)
         if: github.ref == 'refs/heads/develop'
-        run: pnpm -F @supervise-dev/bridge publish --tag develop --no-git-checks
+        run: bun -F @supervise-dev/bridge publish --tag develop --no-git-checks
 
       - name: Publish to GitHub Packages (Production)
         if: github.ref == 'refs/heads/master'
-        run: pnpm -F @supervise-dev/bridge publish --no-git-checks
+        run: bun -F @supervise-dev/bridge publish --no-git-checks
