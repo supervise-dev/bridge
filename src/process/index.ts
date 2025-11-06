@@ -41,8 +41,9 @@ export const execMutation = async ({ input }: { input: ExecInput }): Promise<Pro
       $.env(input.options.env);
     }
 
-    // Execute the command
-    const result = await $`${input.command}`;
+    // Execute the command with array of strings
+    const [cmd, ...args] = input.command;
+    const result = await $`${cmd} ${args}`;
 
     return {
       stdout: result.stdout.toString(),

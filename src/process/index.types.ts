@@ -27,9 +27,14 @@ export const spawnInput = z.object({
     .describe("Optional process configuration"),
 });
 
-/** Input schema for executing a shell command as a string */
+/** Input schema for executing a shell command as an array */
 export const execInput = z.object({
-  command: z.string().describe("Shell command to execute as a single string (e.g., 'npm install')"),
+  command: z
+    .array(z.string())
+    .min(1)
+    .describe(
+      "Shell command to execute as array of strings: [executable, arg1, arg2, ...]. First element is the program name",
+    ),
   options: z
     .object({
       cwd: z.string().optional().describe("Working directory for the command execution. Defaults to current directory"),
