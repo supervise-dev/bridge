@@ -27,7 +27,7 @@ jobs:
         run: bun install
 
       - name: Build bridge package (client library only)
-        run: bun -F @supervise-dev/bridge run build:client
+        run: bun run build:client
 
       - name: Configure npm registry
         run: |
