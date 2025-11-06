@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@supervise-dev/bridge",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A tRPC-based bridge for filesystem and process operations with both library and server components",
   "scripts": {
     "build": "tsc && bun build src/client.ts --outdir ./dist --target node --sourcemap=external",
