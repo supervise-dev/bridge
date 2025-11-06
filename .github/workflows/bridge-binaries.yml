@@ -7,7 +7,7 @@ on:
       - develop
     paths:
       - '.github/workflows/bridge-binaries.yml'
-      - 'src'
+      - 'src/**'
       - 'package.json'
   workflow_dispatch:
 
