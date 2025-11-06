@@ -1,25 +1,34 @@
-# tRPC Filesystem Bridge
+# Bridge
 
-A tRPC-based filesystem bridge that implements the `CodebuffFileSystem` interface, allowing remote filesystem operations over HTTP.
+A high-performance, type-safe tRPC bridge for remote filesystem and process operations. Built with Bun for fast execution and distributed as compiled binaries for easy deployment.
 
 ## Features
 
-- Implements all required filesystem operations:
-  - `existsSync` - Check if file/directory exists
-  - `mkdirSync` - Create directories
-  - `readdirSync` - Read directory contents
-  - `readFileSync` - Read files (text and binary)
-  - `statSync` - Get file/directory stats
-  - `writeFileSync` - Write files (text and binary)
-  - `promises.readdir` - Async directory reading
+### Filesystem Operations
+- `exists` - Check if file/directory exists
+- `mkdir` - Create directories (with recursive option)
+- `readdir` - Read directory contents (with file type information)
+- `readFile` - Read files (text and binary data)
+- `stat` - Get detailed file/directory statistics
+- `writeFile` - Write files (text and binary data)
+- `fileSize` - Get file size
+- `delete` - Delete files/directories (with recursive option)
 
+### Process Operations
+- `spawn` - Spawn a process with arguments and capture output
+- `exec` - Execute shell commands
+
+### Key Capabilities
 - Binary data support via base64 encoding
-- Type-safe with full TypeScript support
+- Full TypeScript support with type safety
 - Built on tRPC for end-to-end type safety
+- Cross-platform binary distribution (Linux x64/ARM64, macOS x64/ARM64)
+- NPM package for client library integration
+- Bun runtime for high performance
 
 ## Installation
 
-### Quick Install (Recommended)
+### Option 1: Install Binary (Recommended)
 
 Download and execute the install script:
 
@@ -52,180 +61,225 @@ cat install.sh  # Review the script
 bash install.sh
 ```
 
-### Development Installation
+### Option 2: Install as NPM Package
+
+```bash
+npm install @supervise-dev/bridge
+# or
+pnpm add @supervise-dev/bridge
+```
+
+### Option 3: Development Installation
 
 For local development:
 
 ```bash
 bun install
+pnpm run build
 ```
 
-## Usage
+## Quick Start
 
-### Starting the Server
+### Running the Server
+
+Start the tRPC server (default port: 3000):
 
 ```bash
-bun run dev:server
+# Using the binary
+bridge
+
+# Or with a custom port
+SV_BRIDGE_PORT=4000 bridge
 ```
 
-The server will start on `http://localhost:3000`.
+The server will be available at `http://localhost:3000/trpc`.
 
-### Running the Client Example
+### Client Usage
 
-In a separate terminal:
-
-```bash
-bun run dev:client
-```
-
-### Using the Async Client (Recommended)
+#### Filesystem Client
 
 ```typescript
-import { createFsClient } from './fs-client';
+import { createFsClient } from '@supervise-dev/bridge';
 
 const fs = createFsClient('http://localhost:3000/trpc');
 
 // Check if file exists
-const exists = await fs.existsSync('/path/to/file');
+const exists = await fs.exists('/path/to/file');
 
 // Create directory
-await fs.mkdirSync('/path/to/dir', { recursive: true });
+await fs.mkdir('/path/to/dir', { recursive: true });
 
 // Write file
-await fs.writeFileSync('/path/to/file.txt', 'Hello World', { encoding: 'utf-8' });
+await fs.writeFile('/path/to/file.txt', 'Hello World', { encoding: 'utf-8' });
 
 // Read file
-const content = await fs.readFileSync('/path/to/file.txt', { encoding: 'utf-8' });
+const content = await fs.readFile('/path/to/file.txt', { encoding: 'utf-8' });
 
 // Get file stats
-const stats = await fs.statSync('/path/to/file.txt');
+const stats = await fs.stat('/path/to/file.txt');
 
-// Read directory
-const files = await fs.readdirSync('/path/to/dir', { withFileTypes: true });
+// Get file size
+const size = await fs.fileSize('/path/to/file.txt');
 
-// Async readdir
-const filesAsync = await fs.promises.readdir('/path/to/dir');
+// Read directory with file type information
+const files = await fs.readdir('/path/to/dir', { withFileTypes: true });
+// Returns: [{ name: 'file.txt', isFile: true, isDirectory: false, isSymbolicLink: false }, ...]
+
+// Delete file or directory
+await fs.delete('/path/to/file', { recursive: true });
 ```
 
-### Using the Raw tRPC Client
+#### Process Client
 
 ```typescript
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
-import type { AppRouter } from './router';
+import { createProcessClient } from '@supervise-dev/bridge';
 
-const client = createTRPCClient<AppRouter>({
-  links: [httpBatchLink({ url: 'http://localhost:3000/trpc' })],
+const proc = createProcessClient('http://localhost:3000/trpc');
+
+// Spawn a process
+const result = await proc.spawn({
+  command: ['ls', '-la', '/tmp'],
+  options: { cwd: '/home/user' }
 });
 
-// Filesystem operations
-const exists = await client.fs.existsSync.query({ path: '/path/to/file' });
-const content = await client.fs.readFileSync.query({
-  path: '/path/to/file',
-  options: { encoding: 'utf-8' }
+console.log(result.stdout);  // Process output
+console.log(result.stderr);  // Error output if any
+console.log(result.exitCode);
+console.log(result.success); // true if exitCode === 0
+
+// Execute a shell command
+const result = await proc.exec({
+  command: 'npm install',
+  options: { cwd: '/path/to/project' }
 });
 ```
 
 ### Binary Data Handling
 
-To read/write binary files, the data is base64 encoded:
+Both text and binary data are automatically handled:
 
 ```typescript
+const fs = createFsClient('http://localhost:3000/trpc');
+
 // Write binary data
-await client.fs.writeFileSync.mutate({
-  path: '/path/to/binary.bin',
-  data: {
-    type: 'Buffer',
-    data: Buffer.from([0x48, 0x65, 0x6c, 0x6c, 0x6f]).toString('base64'),
-  },
-});
+await fs.writeFile('/path/to/binary.bin',
+  Buffer.from([0x48, 0x65, 0x6c, 0x6c, 0x6f])
+);
 
-// Read binary data
-const result = await client.fs.readFileSync.query({ path: '/path/to/binary.bin' });
-if (result.type === 'Buffer') {
-  const buffer = Buffer.from(result.data, 'base64');
+// Read binary data (returns Buffer with base64-encoded content)
+const data = await fs.readFile('/path/to/binary.bin');
+// Type: { type: 'Buffer', data: 'SGVsbG8=' }
+if (data.type === 'Buffer') {
+  const buffer = Buffer.from(data.data, 'base64');
 }
-```
-
-## Type Definition
-
-The filesystem bridge implements the following TypeScript interface:
-
-```typescript
-type CodebuffFileSystem = Pick<
-  typeof fs,
-  "existsSync" | "mkdirSync" | "readdirSync" | "readFileSync" | "statSync" | "writeFileSync"
-> & {
-  promises: Pick<typeof fs.promises, "readdir">;
-};
 ```
 
 ## API Reference
 
-### Queries (Read Operations)
+### Filesystem Client (`createFsClient`)
 
-- `fs.existsSync` - Check if path exists
-- `fs.readdirSync` - Read directory contents synchronously
-- `fs.readFileSync` - Read file contents
-- `fs.statSync` - Get file/directory stats
-- `promises.readdir` - Read directory contents asynchronously
+#### Queries (Read Operations)
 
-### Mutations (Write Operations)
+- `exists(path: string): Promise<boolean>` - Check if path exists
+- `readdir(path: string, options?: { withFileTypes?: boolean }): Promise<string[] | Dirent[]>` - Read directory
+- `readFile(path: string, options?: { encoding?: string }): Promise<string | { type: 'Buffer', data: string }>` - Read file
+- `stat(path: string, options?: any): Promise<Stats>` - Get file stats
+- `fileSize(path: string): Promise<number>` - Get file size
 
-- `fs.mkdirSync` - Create directory
-- `fs.writeFileSync` - Write file contents
+#### Mutations (Write Operations)
 
-## Scripts
+- `mkdir(path: string, options?: { recursive?: boolean }): Promise<string | undefined>` - Create directory
+- `writeFile(path: string, data: string | Buffer, options?: { encoding?: string }): Promise<{ success: true }>` - Write file
+- `delete(path: string, options?: { recursive?: boolean, force?: boolean }): Promise<{ success: true }>` - Delete file/directory
 
-- `bun run dev:server` - Start development server with watch mode
-- `bun run dev:client` - Run client example with watch mode
-- `bun run build` - Build for production
-- `bun run start:server` - Start production server
-- `bun run start:client` - Run production client
-- `bun run test-dev` - Run integration tests in dev mode
-- `bun run test:fs-bridge` - Test the filesystem bridge
-- `bun run test:codebuff` - Test Codebuff SDK integration
-- `bun run typecheck` - Run TypeScript type checking
+### Process Client (`createProcessClient`)
 
-## Codebuff SDK Integration
+- `spawn(input: { command: string[], options?: { cwd?: string, env?: Record<string, string>, stdin?: string, stdout?: string, stderr?: string } }): Promise<ProcessOutput>` - Spawn a process
+- `exec(input: { command: string, options?: { cwd?: string, env?: Record<string, string> } }): Promise<ProcessOutput>` - Execute shell command
 
-This project includes integration with the [@codebuff/sdk](https://www.npmjs.com/package/@codebuff/sdk), demonstrating how to use the tRPC filesystem bridge with Codebuff agents.
+#### ProcessOutput Type
 
-See [CODEBUFF_INTEGRATION.md](./CODEBUFF_INTEGRATION.md) for detailed information about the integration, including:
-- How to use CodebuffClient with the filesystem bridge
-- Example code for running Codebuff agents
-- Testing instructions
-- Production deployment considerations
+```typescript
+interface ProcessOutput {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  success: boolean; // true if exitCode === 0
+}
+```
 
-Quick start:
+## Build & Development
+
+### Scripts
+
 ```bash
-# Terminal 1: Start the tRPC server
-bun run dev:server
+# Development
+make dev-server              # Run server with watch mode
+make build-client            # Build TypeScript client library
+make build                   # Build client + default binary
+make build-all               # Build all platform binaries
+make build-linux-x64         # Build Linux x64
+make build-linux-arm64       # Build Linux ARM64
+make build-darwin-x64        # Build macOS x64
+make build-darwin-arm64      # Build macOS ARM64
 
-# Terminal 2: Test the filesystem bridge (no API key needed)
-bun run test:fs-bridge
+# Maintenance
+make clean                   # Remove build artifacts
+make platform-info           # Show platform information
+make help                    # Show all available commands
 
-# Or run the Codebuff example (requires API key)
-export CODEBUFF_API_KEY=your_key_here
-bun run test:codebuff
+# Or using pnpm directly
+pnpm run dev:server          # Start development server
+pnpm run build:client        # Build client library
+pnpm run build:bridge        # Build bridge binary
+pnpm run lint                # Run ESLint
+pnpm run format              # Format with Prettier
+pnpm run typecheck           # Run TypeScript check
 ```
 
 ## Architecture
 
-The bridge consists of three main components:
+### Components
 
-1. **Router** (`src/router.ts`) - Defines all filesystem operations as tRPC procedures
-2. **Server** (`src/index.ts`) - Bun HTTP server that handles tRPC requests
-3. **Client** (`src/client.ts`) - Example client demonstrating all operations
+1. **Router** (`src/router.ts`) - tRPC procedure definitions for filesystem and process operations
+2. **Server** (`src/index.ts`) - Bun HTTP server with tRPC fetch adapter
+3. **Filesystem Module** (`src/fs/`) - Filesystem operation implementations
+4. **Process Module** (`src/process/`) - Process spawning and execution
+5. **Clients** (`src/fs/client.ts`, `src/process/client.ts`) - Type-safe client wrappers
+6. **Type Definitions** (`src/*/index.types.ts`) - Zod schemas and TypeScript types
+
+### Directory Structure
+
+```
+src/
+├── index.ts                    # Server entry point
+├── router.ts                   # tRPC router definition
+├── schema.ts                   # Shared error schema
+├── client.ts                   # Client library exports
+├── fs/
+│   ├── index.ts               # Filesystem operations
+│   ├── index.types.ts         # Filesystem type definitions
+│   └── client.ts              # Filesystem client wrapper
+└── process/
+    ├── index.ts               # Process operations
+    ├── index.types.ts         # Process type definitions
+    └── client.ts              # Process client wrapper
+```
 
 ## Security Considerations
 
-This filesystem bridge provides **unrestricted access** to the server's filesystem. In production:
+This bridge provides **unrestricted access** to the server's filesystem and process operations. In production:
 
+⚠️ **Important**
 - Implement authentication and authorization
 - Add path validation and sandboxing
 - Use HTTPS for encrypted communication
-- Implement rate limiting
-- Add request logging and auditing
+- Implement rate limiting and request throttling
+- Add comprehensive request logging and auditing
+- Restrict network access to trusted clients only
+- Consider running in a containerized/isolated environment
+- Validate and sanitize all inputs
+- Use process isolation (e.g., seccomp, AppArmor)
 
 ## License
 
