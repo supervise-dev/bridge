@@ -5,7 +5,7 @@
  */
 export { createFsClient } from "./fs/client";
 export { createProcessClient } from "./process/client";
-export { errorOutput } from "./schema";
+export { zErrorOutput } from "./schema";
 
 export {
   existsInput,

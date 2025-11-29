@@ -139,7 +139,7 @@ const proc = createProcessClient('http://localhost:3000/trpc');
 // Spawn a process
 const result = await proc.spawn({
   command: ['ls', '-la', '/tmp'],
-  options: { cwd: '/home/user' }
+  options: { cwd: '/home/createdBy' }
 });
 
 console.log(result.stdout);  // Process output

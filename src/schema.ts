@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const errorOutput = z.object({
+export const zErrorOutput = z.object({
   error: z.string(),
 });
 
-export type ApiError = z.infer<typeof errorOutput>;
+export type ErrorOutput = z.infer<typeof zErrorOutput>;
